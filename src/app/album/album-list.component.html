@@ -1,0 +1,11 @@
+<h1>{{pageTitleAlbum}}</h1>
+<div class="row row-cols-1 row-cols-md-3 g-4">    
+    <div *ngFor="let album of albums" class="col">  
+      <div class="card">
+          <img [style.width.px]='150' [style.heigth.px]='150'
+          [style.margin.px]='2' [src]='album.thumbnailUrl' class="card-img-top" alt="...">
+            <div class="card-body">
+            <h5 class="card-title">{{album.title}}</h5>
+            <a href="/" [routerLink]="['/albums',album.id]" target="_blank" class="btn btn-primary">Details</a>
+        </div>
+      </div>
