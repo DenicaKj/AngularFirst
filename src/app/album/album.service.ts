@@ -1,25 +1,54 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { IAlbum } from "./album";
-import { Observable, catchError, map, tap, throwError } from "rxjs";
+import { Observable, catchError, map, of, publishReplay, refCount, shareReplay, switchMap, take, tap, throwError } from "rxjs";
 
 @Injectable({
     providedIn:'root'
 })
 export class AlbumService{
     private albumUrl='https://jsonplaceholder.typicode.com/photos'
+    albums!:IAlbum[]
     constructor(private http:HttpClient){
     }
-    getAlbums():Observable<IAlbum[]>{
-        return this.http.get<IAlbum[]>(this.albumUrl).pipe(
-            tap(data=>console.log('All',JSON.stringify(data))),
-            catchError(this.handleError)
-        )
+    albumsOb!:Promise<IAlbum[]|undefined>
+    getAlbumsPrivate():Promise<IAlbum[]|undefined>{
+      this.albumsOb= this.http.get<IAlbum[]>(this.albumUrl).pipe(
+        tap(data=>console.log('All',JSON.stringify(data))),
+        catchError(this.handleError)).toPromise()
+        return this.albumsOb
     }
-    getAlbum(id:number):Observable<IAlbum | undefined>{
-      return this.getAlbums().pipe(
-        map((albums: IAlbum[]) => albums.find(a => a.albumId === id))
-        )
+    async getAlbums():Promise<IAlbum[]>{
+      await this.getAlbumsPrivate();
+      console.log(this.albumsOb)
+      if(this.albums){
+        return (this.albums)
+      }else{
+        let albums = await this.albumsOb;
+        this.albums=albums!;
+        console.log(this.albums)
+        return this.albums;
+      }
+    }
+    update(album:IAlbum){
+      let httpHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+      let options = { headers: httpHeaders };
+
+      return this.http.put<IAlbum>(`${this.albumUrl}/${album.id}`, album, options);
+
+    }
+    detele(id:number){
+      let httpheaders=new HttpHeaders()
+      .set('Content-type','application/Json');
+      let options={
+        headers:httpheaders
+      };
+      this.albums=this.albums.filter(a=>a.id!=id)
+      return this.http.delete<number>(this.albumUrl+"/"+id)
+     
+    }
+    getAlbum(id:number):IAlbum|undefined{
+      return 
     }
     private handleError(err: HttpErrorResponse): Observable<never> {
         // in a real world app, we may send the server to some remote logging infrastructure
@@ -36,4 +65,8 @@ export class AlbumService{
         console.error(errorMessage);
         return throwError(() => errorMessage);
       }
+}
+
+function next(value: IAlbum[]): void {
+  throw new Error("Function not implemented.");
 }

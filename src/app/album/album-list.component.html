@@ -1,11 +1,169 @@
-<h1>{{pageTitleAlbum}}</h1>
-<div class="row row-cols-1 row-cols-md-3 g-4">    
-    <div *ngFor="let album of albums" class="col">  
-      <div class="card">
+<style>
+  .image-container {
+  max-width: 100%;
+  height: auto;
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+<div class="row p-2">
+<div class='col-md-1 p-2' style="font-weight: bold;font-size: 20px;">Filter by:</div>
+        <div class='col-md-4'>
+          <input class="form-control" type='text' [(ngModel)]="listFilter"/>
+</div></div>  
+<div class="row " > 
+   
+    <div *ngFor="let album of filteredAlbums" class="col p-3" [style.width.px]='200'>  
+      <div class="card border-0" >
+          
           <img [style.width.px]='150' [style.heigth.px]='150'
-          [style.margin.px]='2' [src]='album.thumbnailUrl' class="card-img-top" alt="...">
-            <div class="card-body">
+          [style.margin.px]='2' [src]='album.thumbnailUrl' class="card-img-top-rounded p-1 " alt="..." (click)="$event.preventDefault();openDialogWithTemplateRef(myDialog);">
+            
+          <div class="card-body p-0">
             <h5 class="card-title">{{album.title}}</h5>
-            <a href="/" [routerLink]="['/albums',album.id]" target="_blank" class="btn btn-primary">Details</a>
+            <!--<a href="/"  class="btn btn-primary">Details</a>
+              <button class='btn btn-outline-secondary'
+              style='width:80px'
+              (click)="$event.preventDefault();openDialogWithTemplateRef(deleteBox);">
+              Delete
+              </button>
+              <ng-template #deleteBox>
+                <div mat-dialog-content>
+                  Are you sure to delete this?
+              </div>
+              <div mat-dialog-sections [align]="'end'">
+                  <button mat-raised-button [mat-dialog-close]="false" class='btn btn-outline-secondary'
+                  style='width:80px'>No</button>
+                  <button mat-raised-button class='btn btn-outline-secondary'
+                  style='width:80px' [mat-dialog-close]="true"  (click)="delete(album.id)" >Yes</button>
+              </div>
+              </ng-template>-->
+              <ng-template #myDialog>
+                <div class='card'>
+                  <div class='card-header'>
+                    <div mat-dialog-sections [align]="'end'" class="md-3">
+                    <button class='btn btn-outline-secondary md-3'
+                    style='width:80px;margin-right: 2%;' [mat-dialog-close]="true"
+                    (click)="$event.preventDefault();openDialogWithTemplateRef(editBox);initializeEditAlbum(album.id);">
+                    Edit
+                    </button>
+              
+                  <ng-template #editBox>
+                    <form #form='ngForm'>
+                    <div class='card'> 
+                      <div class='card-body'
+                           *ngIf='album'>
+                        <div class='row'>
+                          <div class='col-md-8'>
+                            <div class='row' *ngIf="editAlbum">
+                              <input name="id" type="hidden" [value]="album.id" [(ngModel)]="editAlbum.id">
+                              <label class='col'>Name:</label>
+                              <input name="title" class='col-md-8 form-control' [value]="album.title" [placeholder]="album.title" [(ngModel)]="editAlbum.title">
+                              <label class='col-md-4'>Image Thumbnail:</label>
+                              <input name="thumbnailUrl" class='col-md-8 form-control' [placeholder]="album.thumbnailUrl" [value]="album.thumbnailUrl" [(ngModel)]="editAlbum.thumbnailUrl">
+                              <label class='col-md-4'>Image:</label>
+                              <input name="url" class='col-md-8 form-control' [placeholder]="album.url" [value]="album.url" [(ngModel)]="editAlbum.url">
+                            
+                          </div>
+                            
+                          </div>
+                        </div>
+                        <div class='card-footer'>
+                          <mat-dialog-actions align="end">
+                          <button mat-button matDialogClose class='btn btn-outline-secondary'
+                            style='width:80px' type="submit" (click)="onSubmit(form)">
+                            Save
+                        </button></mat-dialog-actions>
+                      </div>
+                      </div>
+                      </div></form>
+                      <!--
+                      <div class='card-footer'>
+                        <button class='btn btn-outline-secondary'
+                                style='width:80px'>
+                          <i class='fa fa-chevron-left'></i> Back
+                        </button>
+                        
+                      </div>-->
+                    <!--
+                    <mat-dialog-actions align="end">
+                      <button mat-button matDialogClose color="primary">Dismiss</button>
+                    </mat-dialog-actions>-->
+                  </ng-template>
+                  <div mat-dialog-sections [align]="'end'" [style.display]="'inline'">
+                      <button mat-button matDialogClose class='btn btn-outline-secondary'
+                        style='width:80px' (click)="$event.preventDefault();openDialogWithTemplateRef(deleteBox);">
+                        Delete
+                    </button></div>
+                    <ng-template #deleteBox>
+                      <div mat-dialog-content>
+                        Are you sure to delete this?
+                    </div>
+                    <div mat-dialog-sections [align]="'end'">
+                        <button mat-button [mat-dialog-close]="false" class='btn btn-outline-secondary m-2'
+                        style='width:80px;'>No</button>
+                        <button mat-button class='btn btn-outline-secondary m-2'
+                        style='width:80px;' [mat-dialog-close]="true"  (click)="delete(album.id)" >Yes</button>
+                    </div>
+                    </ng-template>
+                  </div>
+                </div>
+                
+                  <div class='card-body'
+                       *ngIf='album'>
+                    <div class='row'>
+                      <div class='col'>
+                        <div class='row'>
+                          
+                          <div class='col'>{{album.title}}</div>
+                          
+                        </div>
+                        <div class="image-container">
+                        <img #editImage class='center-block img-responsive'
+                             [style.width.px]='600'
+                             [style.heigth.px]='600'
+                             [style.margin.px]='2'
+                             [src]='album.url'
+                             [title]='album.title'></div>
+                      </div>
+                    </div>
+                    <!--<div class='card-footer'>
+                      <mat-dialog-actions align="end">
+                      <button mat-button matDialogClose class='btn btn-outline-secondary'
+                        style='width:80px' (click)="$event.preventDefault();openDialogWithTemplateRef(deleteBox);">
+                        Delete
+                    </button></mat-dialog-actions>
+                    <ng-template #deleteBox>
+                      <div mat-dialog-content>
+                        Are you sure to delete this?
+                    </div>
+                    <div mat-dialog-sections [align]="'end'">
+                        <button mat-raised-button [mat-dialog-close]="false" class='btn btn-outline-secondary'
+                        style='width:80px'>No</button>
+                        <button mat-raised-button class='btn btn-outline-secondary'
+                        style='width:80px' [mat-dialog-close]="true"  (click)="delete(album.id)" >Yes</button>
+                    </div>
+                    </ng-template>
+                  </div>-->
+                  </div>
+                  </div>
+                  <!--
+                  <div class='card-footer'>
+                    <button class='btn btn-outline-secondary'
+                            style='width:80px'>
+                      <i class='fa fa-chevron-left'></i> Back
+                    </button>
+                    
+                  </div>-->
+                <!--
+                <mat-dialog-actions align="end">
+                  <button mat-button matDialogClose color="primary">Dismiss</button>
+                </mat-dialog-actions>-->
+              </ng-template>
         </div>
       </div>
+    </div>
+</div>

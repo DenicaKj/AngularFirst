@@ -5,24 +5,23 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AlbumComponent } from './album/album-list.component';
-import { AlbumDetailComponent } from './album/album-detail.component';
 import { RouterModule } from '@angular/router';
-
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  MatDialogModule
+} from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
     AlbumComponent,
-    AlbumDetailComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
-    RouterModule.forRoot([
-      {path:'albums',component:AlbumComponent},
-      {path:'albums/:id',component:AlbumDetailComponent},
-      {path:'',redirectTo:'albums',pathMatch:'full'},
-      {path:'**',redirectTo:'albums',pathMatch:'full'}
-    ])
+    NgbModule,
+    MatDialogModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
